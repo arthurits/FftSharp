@@ -15,12 +15,12 @@ namespace FftSharp.Tests
         public void Test_IDFT_MatchesOriginal()
         {
             Random rand = new Random(0);
-            Complex[] original = new Complex[1024];
+            System.Numerics.Complex[] original = new System.Numerics.Complex[1024];
             for (int i = 0; i < original.Length; i++)
-                original[i] = new Complex(rand.NextDouble() - .5, rand.NextDouble() - .5);
+                original[i] = new System.Numerics.Complex(rand.NextDouble() - .5, rand.NextDouble() - .5);
 
-            Complex[] fft = FftSharp.Experimental.DFT(original);
-            Complex[] ifft = FftSharp.Experimental.DFT(fft, inverse: true);
+            System.Numerics.Complex[] fft = FftSharp.Experimental.DFT(original);
+            System.Numerics.Complex[] ifft = FftSharp.Experimental.DFT(fft, inverse: true);
 
             for (int i = 0; i < ifft.Length; i++)
             {
@@ -49,6 +49,25 @@ namespace FftSharp.Tests
             {
                 Assert.AreEqual(original[i].Real, ifft[i].Real, 1e-6);
                 Assert.AreEqual(original[i].Imaginary, ifft[i].Imaginary, 1e-6);
+            }
+        }
+
+        [Test]
+        public void Test_InverseReal_MatchesOriginal()
+        {
+            Random rand = new Random(0);
+            double[] original = new double[1024];
+            for (int i = 0; i < original.Length; i++)
+                original[i] = rand.NextDouble() - .5;
+
+            System.Numerics.Complex[] rfft = FftSharp.FFT.ForwardReal(original);
+            double[] irfft = FftSharp.FFT.InverseReal(rfft);
+
+            Assert.AreEqual(original.Length, irfft.Length);
+
+            for (int i = 0; i < irfft.Length; i++)
+            {
+                Assert.AreEqual(original[i], irfft[i], 1e-10);
             }
         }
     }
