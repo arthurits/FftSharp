@@ -8,13 +8,13 @@ namespace FftSharp
     public static class Experimental
     {
         // An easy-to-read (but non-optimized) implementation of the FFT algorithm
-        private static System.Numerics.Complex[] FFTsimple(System.Numerics.Complex[] input)
+        private static Complex[] FFTsimple(Complex[] input)
         {
-            System.Numerics.Complex[] output = new System.Numerics.Complex[input.Length];
+            Complex[] output = new Complex[input.Length];
 
             int H = input.Length / 2;
-            System.Numerics.Complex[] evens = new System.Numerics.Complex[H];
-            System.Numerics.Complex[] odds = new System.Numerics.Complex[H];
+            Complex[] evens = new Complex[H];
+            Complex[] odds = new Complex[H];
             for (int i = 0; i < H; i++)
             {
                 evens[i] = input[2 * i];
@@ -27,7 +27,7 @@ namespace FftSharp
             for (int i = 0; i < H; i++)
             {
                 double radians = mult1 * i;
-                odds[i] *= new System.Numerics.Complex(Math.Cos(radians), Math.Sin(radians));
+                odds[i] *= new Complex(Math.Cos(radians), Math.Sin(radians));
             }
 
             for (int i = 0; i < H; i++)
@@ -40,20 +40,21 @@ namespace FftSharp
         }
 
         // Compute the forward or inverse discrete Fourier Transform (not using the fast FFT algorithm)
-        public static System.Numerics.Complex[] DFT(System.Numerics.Complex[] input, bool inverse = false)
+        public static Complex[] DFT(Complex[] input, bool inverse = false)
         {
             int N = input.Length;
             double mult1 = (inverse) ? 2 * Math.PI / N : -2 * Math.PI / N;
             double mult2 = (inverse) ? 1.0 / N : 1.0;
+            Console.WriteLine($"REAL {mult1} {mult2}");
 
-            System.Numerics.Complex[] output = new System.Numerics.Complex[N];
+            Complex[] output = new Complex[N];
             for (int k = 0; k < N; k++)
             {
-                output[k] = new System.Numerics.Complex(0, 0);
+                output[k] = new Complex(0, 0);
                 for (int n = 0; n < N; n++)
                 {
                     double radians = n * k * mult1;
-                    System.Numerics.Complex temp = new System.Numerics.Complex(Math.Cos(radians), Math.Sin(radians));
+                    Complex temp = new Complex(Math.Cos(radians), Math.Sin(radians));
                     temp *= input[n];
                     output[k] += temp * mult2;
                 }
@@ -62,42 +63,9 @@ namespace FftSharp
             return output;
         }
 
-        public static System.Numerics.Complex[] DFT(double[] input, bool inverse = false)
+        public static Complex[] DFT(double[] input, bool inverse = false)
         {
-            System.Numerics.Complex[] inputComplex = new System.Numerics.Complex[input.Length];
-            for (int i = 0; i < input.Length; i++)
-                inputComplex[i] = new(input[i], 0);
-
-            return DFT(inputComplex, inverse);
-        }
-
-        /// <summary>
-        /// Computes the discrete Fourier transform (DFT) of the given array.
-        /// The array may have any length.
-        /// Uses Bluestein's chirp z-transform algorithm.
-        /// </summary>
-        public static System.Numerics.Complex[] Bluestein(double[] real, bool inverse = false)
-        {
-            System.Numerics.Complex[] buffer = new System.Numerics.Complex[real.Length];
-
-            for (int i = 0; i < real.Length; i++)
-            {
-                buffer[i] = new System.Numerics.Complex(real[i], 0);
-            }
-
-            Bluestein(buffer, inverse);
-
-            return buffer;
-        }
-
-        /// <summary>
-        /// Computes the discrete Fourier transform (DFT) of the given complex vector in place.
-        /// The vector can have any length.
-        /// Uses Bluestein's chirp z-transform algorithm.
-        /// </summary>
-        public static void Bluestein(System.Numerics.Complex[] buffer, bool inverse = false)
-        {
-            BluesteinOperations.TransformBluestein(buffer, inverse);
+            return DFT(Transform.MakeComplex(input), inverse);
         }
     }
 }
